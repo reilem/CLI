@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { writeConfig } from '@capacitor/cli/dist/config';
+import { writeConfig } from '@capacitor/cli';
 import * as p from '@clack/prompts';
 import { createRSA } from './api/crypto';
 import { baseKey, baseKeyPub, getConfig } from './utils';

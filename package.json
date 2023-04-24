@@ -29,10 +29,11 @@
     "capgo-cli"
   ],
   "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c --watch",
     "dev": "set NODE_ENV=development && npx webpack --config webpack.config.js",
     "no-debug": "node dist/index.js",
     "test": "npx --yes ts-node -T src/index.ts",
-    "build": "npx --yes webpack --config webpack.config.js",
     "dev-build": "SUPA_DB=development npx webpack --config webpack.config.js",
     "pack": "pkg",
     "types": "npx --yes supabase gen types typescript --project-id=xvwzpoazmxkqosrdewyv > src/types/supabase.types.ts",
@@ -64,6 +65,9 @@
     "semver": "^7.5.0"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "@types/adm-zip": "0.5.0",
     "@types/fs-extra": "^11.0.1",
     "@types/mime": "^3.0.1",
@@ -87,6 +91,9 @@
     "nodemon": "2.0.22",
     "pkg": "5.8.1",
     "prettier": "2.8.7",
+    "rollup": "^3.21.0",
+    "rollup-plugin-dts": "^5.3.0",
+    "rollup-plugin-esbuild": "^5.0.0",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",

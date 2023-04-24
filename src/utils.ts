@@ -1,8 +1,8 @@
-import { loadConfig } from '@capacitor/cli/dist/config';
+import { loadConfig } from '@capacitor/cli';
 import { program } from 'commander';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import prettyjson from 'prettyjson';
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { Dirent, existsSync, readdirSync, readFileSync } from 'fs';
 import { homedir } from 'os';
 import { LogSnag } from 'logsnag';
 import { Database } from 'types/supabase.types';
@@ -130,37 +130,41 @@ export const findSavedKey = () => {
     return key
 }
 
-async function* getFiles(dir: string): AsyncGenerator<string> {
+
+async function getFiles(dir: string): Promise<string[]> {
     const dirents = await readdirSync(dir, { withFileTypes: true });
-    for (const dirent of dirents) {
-        const res = resolve(dir, dirent.name);
-        if (dirent.isDirectory()
-            && !dirent.name.startsWith('.')
-            && !dirent.name.startsWith('node_modules')
-            && !dirent.name.startsWith('dist')) {
-            yield* getFiles(res);
-        } else {
-            yield res;
-        }
-    }
+    const files = await Promise.all(
+        dirents.map(async (dirent: Dirent) => {
+            const res = resolve(dir, dirent.name);
+            if (dirent.isDirectory()
+                && !dirent.name.startsWith('.')
+                && !dirent.name.startsWith('node_modules')
+                && !dirent.name.startsWith('dist')) {
+                return getFiles(res);
+            }
+            return res;
+
+        })
+    );
+    return files.flat();
 }
+
 export const findMainFile = async () => {
-    const mainRegex = /(main|index)\.(ts|js)$/
-    // search for main.ts or main.js in local dir and subdirs
-    let mainFile = ''
-    const pwd = process.cwd()
-    const pwdL = pwd.split('/').length
-    for await (const f of getFiles(pwd)) {
-        // find number of folder in path after pwd
-        const folders = f.split('/').length - pwdL
+    const mainRegex = /(main|index)\.(ts|js)$/;
+    let mainFile = '';
+    const pwd = process.cwd();
+    const pwdL = pwd.split('/').length;
+    const files = await getFiles(pwd);
+    for (const f of files) {
+        const folders = f.split('/').length - pwdL;
         if (folders <= 2 && mainRegex.test(f)) {
-            mainFile = f
-            p.log.info(`Found main file here ${f}`)
-            break
+            mainFile = f;
+            p.log.info(`Found main file here ${f}`);
+            break;
         }
     }
-    return mainFile
-}
+    return mainFile;
+};
 
 export const formatError = (error: any) => error ? `\n${prettyjson.render(error)}` : ''
 
