@@ -16,7 +16,7 @@ import type {
 } from '../utils'
 import {
   OrganizationPerm,
-  baseKeyPub,
+  baseKey,
   checkCompatibility,
   checkPlanValid,
   convertAppName,
@@ -227,18 +227,18 @@ export async function uploadBundle(appid: string, options: Options, shouldExit =
     s.start(`Calculating checksum`)
     checksum = await getChecksum(zipped, 'crc32')
     s.stop(`Checksum: ${checksum}`)
-    if (key || existsSync(baseKeyPub)) {
-      const publicKey = typeof key === 'string' ? key : baseKeyPub
+    if (key || existsSync(baseKey)) {
+      const privateKey = typeof key === 'string' ? key : baseKey
       let keyData = options.keyData || ''
-      // check if publicKey exist
-      if (!keyData && !existsSync(publicKey)) {
-        p.log.error(`Cannot find public key ${publicKey}`)
+      // check if privateKey exist
+      if (!keyData && !existsSync(privateKey)) {
+        p.log.error(`Cannot find private key ${privateKey}`)
         if (ciDetect.isCI)
           program.error('')
 
-        const res = await p.confirm({ message: 'Do you want to use our public key ?' })
+        const res = await p.confirm({ message: 'Do you want to use our private key ?' })
         if (!res) {
-          p.log.error(`Error: Missing public key`)
+          p.log.error(`Error: Missing private key`)
           program.error('')
         }
         keyData = localConfig.signKey || ''
@@ -255,7 +255,7 @@ export async function uploadBundle(appid: string, options: Options, shouldExit =
       }).catch()
       // open with fs publicKey path
       if (!keyData) {
-        const keyFile = readFileSync(publicKey)
+        const keyFile = readFileSync(privateKey)
         keyData = keyFile.toString()
       }
       // encrypt
