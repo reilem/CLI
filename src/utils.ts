@@ -382,6 +382,8 @@ interface Config {
           localSupaAnon?: string
           allowModifyUrl?: boolean
           defaultChannel?: string
+          channelUrl?: string
+          publicKey?: string
         }
       }
       server: {
