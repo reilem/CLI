@@ -379,7 +379,6 @@ interface Config {
           resetWhenUpdate?: boolean
           updateUrl?: string
           statsUrl?: string
-          privateKey?: string
           version?: string
           directUpdate?: boolean
           periodCheckDelay?: number
@@ -390,6 +389,9 @@ interface Config {
           localSupaAnon?: string
           allowModifyUrl?: boolean
           defaultChannel?: string
+          channelUrl?: string
+          publicKey?: string
+          privateKey?: string
         }
       }
       server: {
@@ -397,6 +399,25 @@ interface Config {
         url: string
       }
     }
+  }
+}
+
+export async function checKOldEncryption() {
+  const config = await getConfig()
+  const { extConfig } = config.app
+  // console.log('localConfig - ', localConfig)
+  // console.log('config - ', config)
+
+  const hasPrivateKeyInConfig = !!extConfig?.plugins?.CapacitorUpdater?.privateKey
+  const hasPublicKeyInConfig = !!extConfig?.plugins?.CapacitorUpdater?.publicKey
+
+  if (hasPrivateKeyInConfig)
+    p.log.warning(`You still have privateKey in the capacitor config, this is deprecated, please remove it`)
+  p.log.warning(`Encryption with private will be ignored`)
+
+  if (!hasPublicKeyInConfig) {
+    p.log.warning(`publicKey not found in capacitor config, please run npx @capgo/cli key save`)
+    program.error('')
   }
 }
 
